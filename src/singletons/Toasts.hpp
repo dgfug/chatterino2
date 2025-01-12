@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Application.hpp"
-#include "common/Singleton.hpp"
-
 #include <pajlada/settings/setting.hpp>
+#include <QString>
+
+#include <cstdint>
 
 namespace chatterino {
 
@@ -16,20 +16,26 @@ enum class ToastReaction {
     DontOpen = 3
 };
 
-class Toasts final : public Singleton
+class Toasts final
 {
 public:
-    void sendChannelNotification(const QString &channelName, Platform p);
+    ~Toasts();
+
+    void sendChannelNotification(const QString &channelName,
+                                 const QString &channelTitle, Platform p);
     static QString findStringFromReaction(const ToastReaction &reaction);
     static QString findStringFromReaction(
         const pajlada::Settings::Setting<int> &reaction);
-    static std::map<ToastReaction, QString> reactionToString;
 
     static bool isEnabled();
 
 private:
 #ifdef Q_OS_WIN
-    void sendWindowsNotification(const QString &channelName, Platform p);
+    void ensureInitialized();
+    void sendWindowsNotification(const QString &channelName,
+                                 const QString &channelTitle, Platform p);
+
+    bool initialized_ = false;
 #endif
 };
 }  // namespace chatterino
